@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ludo Championship - Loading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #0b0f19;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            display: block; /* Fallback for older webviews */
+            overflow: hidden;
+            background: linear-gradient(45deg, #ef4444, #eab308, #22c55e, #3b82f6, #ef4444);
+            background-size: 400% 400%;
+            animation: fluidRainbow 6s ease infinite;
+        }
+
+        @keyframes fluidRainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .splash-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        /* --- 3D SOLID DICE (3 FACES VISIBLE) --- */
+        .dice-wrapper {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 40px auto;
+            perspective: 600px;
+        }
+
+        .dice-view-3d {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform: rotateX(-30deg) rotateY(45deg);
+            animation: floatDice 3s ease-in-out infinite;
+        }
+
+        @keyframes floatDice {
+            0%, 100% { transform: rotateX(-30deg) rotateY(45deg) translateY(0px); }
+            50% { transform: rotateX(-30deg) rotateY(45deg) translateY(-15px); }
+        }
+
+        .face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: #ffffff;
+            border: 3px solid #0b0f19;
+            border-radius: 18px;
+            padding: 15px;
+            display: grid;
+            gap: 10px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            background-color: #0b0f19;
+            border-radius: 50%;
+            margin: auto;
+        }
+
+        /* Top Face (Showing 1) */
+        .face.top {
+            transform: rotateX(90deg) translateZ(60px);
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Front Face (Showing 3) */
+        .face.front {
+            transform: translateZ(60px);
+            background: #e2e8f0;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        .face.front .dot:nth-child(1) { grid-area: 1 / 1; }
+        .face.front .dot:nth-child(2) { grid-area: 2 / 2; }
+        .face.front .dot:nth-child(3) { grid-area: 3 / 3; }
+
+        /* Right Face (Showing 5) */
+        .face.right {
+            transform: rotateY(90deg) translateZ(60px);
+            background: #cbd5e1;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        .face.right .dot:nth-child(1) { grid-area: 1 / 1; }
+        .face.right .dot:nth-child(2) { grid-area: 1 / 3; }
+        .face.right .dot:nth-child(3) { grid-area: 2 / 2; }
+        .face.right .dot:nth-child(4) { grid-area: 3 / 1; }
+        .face.right .dot:nth-child(5) { grid-area: 3 / 3; }
+
+        /* --- TEXT STYLING --- */
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 50px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- MODERN LINE LOADER --- */
+        .loader-track {
+            width: 180px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .loader-bar {
+            width: 0%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 10px;
+            animation: fillProgress 3s linear forwards;
+            box-shadow: 0 0 8px #ffffff;
+        }
+
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-container">
+        <div class="dice-wrapper">
+            <div class="dice-view-3d">
+                <div class="face top">
+                    <div class="dot"></div>
+                </div>
+                <div class="face front">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="face right">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <h1>LUDO</h1>
+        <div class="subtitle">Championship</div>
+
+        <div class="loader-track">
+            <div class="loader-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        // Strong connectivity logic for Mobile App / WebView Environment
+        setTimeout(function() {
+            // Current folder ke path ko automatic detect karke index.html par redirect karega
+            var currentPath = window.location.pathname;
+            var directoryPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            
+            // Mobile app safe path redirection
+            window.location.replace((directoryPath ? directoryPath : ".") + "/index.html");
+        }, 3000); // 3 seconds loading time
+    </script>
+</body>
+</html>

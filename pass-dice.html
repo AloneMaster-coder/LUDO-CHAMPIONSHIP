@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Offline Pass Dice - Standalone</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 85'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ef4444'/%3E%3Cstop offset='33%25' stop-color='%23eab308'/%3E%3Cstop offset='66%25' stop-color='%2322c55e'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='85' rx='18' fill='url(%23g)'/%3E%3Cpath d='M90 18 L112 32 L112 58 L90 72 L68 58 L68 32 Z' fill='%23ffffff' opacity='0.95'/%3E%3Ccircle cx='90' cy='30' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='80' cy='40' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='100' cy='40' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='80' cy='52' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='100' cy='52' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='90' cy='62' r='2.5' fill='%230b0f19'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --red-color: #dc2626;
+            --green-color: #16a34a;
+            --yellow-color: #ca8a04;
+            --blue-color: #2563eb;
+            --active-theme-color: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            /* MOBILE BLUE HIGHLIGHT FIX */
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow-y: auto;
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px 0;
+        }
+
+        .fs-top-navigation {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            padding: 0 25px;
+            display: flex;
+            justify-content: flex-start;
+            z-index: 10;
+        }
+
+        .back-home-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: all 0.2s;
+        }
+        .back-home-btn:hover {
+            background: #334155;
+            transform: scale(1.05);
+        }
+
+        .fs-die-card {
+            padding: 60px 40px;
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 4px solid var(--active-theme-color);
+            background: #1e293b;
+            cursor: pointer;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.1s;
+            width: 85%;
+            max-width: 380px;
+        }
+
+        .fs-die-card:active {
+            transform: scale(0.98);
+        }
+
+        .premium-tactile-die {
+            width: 130px;
+            height: 130px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 16px;
+            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4), 
+                        inset 0 -6px 10px rgba(0,0,0,0.15), 
+                        inset 0 6px 10px rgba(255,255,255,0.8);
+            border: 3px solid var(--active-theme-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .die-dot {
+            background-color: var(--active-theme-color) !important;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            opacity: 0;
+            transition: opacity 0.05s ease, background-color 0.3s ease;
+        }
+
+        #fs-action-status {
+            color: #cbd5e1;
+            font-size: 15px;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .player-tag {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--active-theme-color);
+            transition: all 0.3s ease;
+        }
+
+        .die-roll-anim { animation: rollCube 0.4s ease-in-out; }
+        @keyframes rollCube {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="fs-top-navigation">
+        <a href="index.html" class="back-home-btn"><i class="fa-solid fa-house"></i></a>
+    </div>
+
+    <div class="fs-die-card" id="fullscreen-die-wrapper" onclick="triggerStandaloneOfflineRoll()">
+        <div class="player-tag" id="current-player-lbl">RED'S TURN</div>
+        
+        <div class="premium-tactile-die" id="standalone-die">
+            <div class="die-dot" id="sd1"></div><div class="die-dot" id="sd2"></div><div class="die-dot" id="sd3"></div>
+            <div class="die-dot" id="sd4"></div><div class="die-dot" id="sd5"></div><div class="die-dot" id="sd6"></div>
+            <div class="die-dot" id="sd7"></div><div class="die-dot" id="sd8"></div><div class="die-dot" id="sd9"></div>
+        </div>
+        
+        <p id="fs-action-status">TAP TO ROLL</p>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSoundTone(frequency, duration = 0.15) {
+            try {
+                let osc = audioCtx.createOscillator();
+                let gainNode = audioCtx.createGain();
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        const totalPlayers = parseInt(localStorage.getItem('ludo_player_count')) || 4;
+        let offlineTeams = ['red', 'green', 'yellow', 'blue'];
+        
+        if (totalPlayers === 2) { offlineTeams = ['red', 'yellow']; } 
+        else if (totalPlayers === 3) { offlineTeams = ['red', 'green', 'yellow']; }
+
+        const teamColors = { 'red': '#dc2626', 'green': '#16a34a', 'yellow': '#ca8a04', 'blue': '#2563eb' };
+        let currentTurnIdx = 0;
+        let isDiceRolling = false;
+
+        const DOT_COMBOS = { 1:[5], 2:[3,7], 3:[3,5,7], 4:[1,3,7,9], 5:[1,3,5,7,9], 6:[1,3,4,6,7,9] };
+
+        function renderDieGraphics(number) {
+            const container = document.getElementById('standalone-die');
+            container.querySelectorAll('.die-dot').forEach(dot => dot.style.opacity = '0');
+            DOT_COMBOS[number].forEach(pos => {
+                document.getElementById(`sd${pos}`).style.opacity = '1';
+            });
+        }
+
+        function triggerStandaloneOfflineRoll() {
+            if (isDiceRolling) return;
+            isDiceRolling = true;
+
+            const dieNode = document.getElementById('standalone-die');
+            dieNode.classList.add('die-roll-anim');
+            playSoundTone(280, 0.25);
+            document.getElementById('fs-action-status').innerText = "ROLLING...";
+
+            let cycles = 0;
+            const timer = setInterval(() => {
+                renderDieGraphics(Math.floor(Math.random() * 6) + 1);
+                cycles++;
+                
+                if (cycles > 8) {
+                    clearInterval(timer);
+                    dieNode.classList.remove('die-roll-anim');
+                    
+                    let landingFace = Math.floor(Math.random() * 6) + 1;
+                    renderDieGraphics(landingFace);
+                    
+                    document.getElementById('fs-action-status').innerText = `ROLLED: ${landingFace}`;
+                    playSoundTone(420, 0.15);
+
+                    if (landingFace !== 6) {
+                        currentTurnIdx = (currentTurnIdx + 1) % offlineTeams.length;
+                    } else {
+                        document.getElementById('fs-action-status').innerText = `ROLLED: 6 (EXTRA ROLL)`;
+                    }
+
+                    setTimeout(() => {
+                        const nextTeam = offlineTeams[currentTurnIdx];
+                        document.documentElement.style.setProperty('--active-theme-color', teamColors[nextTeam]);
+                        document.getElementById('current-player-lbl').innerText = `${nextTeam.toUpperCase()}'S TURN`;
+                        if (landingFace !== 6) { document.getElementById('fs-action-status').innerText = "TAP TO ROLL"; }
+                        isDiceRolling = false;
+                    }, 1200);
+                }
+            }, 50);
+        }
+
+        const firstTeam = offlineTeams[0];
+        document.documentElement.style.setProperty('--active-theme-color', teamColors[firstTeam]);
+        document.getElementById('current-player-lbl').innerText = `${firstTeam.toUpperCase()}'S TURN`;
+        renderDieGraphics(6);
+    </script>
+</body>
+</html>

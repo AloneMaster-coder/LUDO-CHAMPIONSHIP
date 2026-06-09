@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Championship Ludo - Home</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 85'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ef4444'/%3E%3Cstop offset='33%25' stop-color='%23eab308'/%3E%3Cstop offset='66%25' stop-color='%2322c55e'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='85' rx='18' fill='url(%23g)'/%3E%3Cpath d='M90 18 L112 32 L112 58 L90 72 L68 58 L68 32 Z' fill='%23ffffff' opacity='0.95'/%3E%3Ccircle cx='90' cy='30' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='80' cy='40' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='100' cy='40' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='80' cy='52' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='100' cy='52' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='90' cy='62' r='2.5' fill='%230b0f19'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%);
+        }
+
+        /* --- SPLASH SCREEN STYLES --- */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0f19;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .splash-loader-bar {
+            width: 160px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .splash-loader-progress {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #eab308, #22c55e, #3b82f6);
+            position: absolute;
+            left: -100%;
+            animation: loadProgress 2.8s forwards cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes loadProgress {
+            0% { left: -100%; }
+            50% { left: -30%; }
+            100% { left: 0%; }
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .welcome-container {
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            padding: 30px 20px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid #334155;
+            border-radius: 28px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.5s ease;
+        }
+
+        .logo-rectangle-card {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 340px;
+            height: 85px;
+            margin-bottom: 25px;
+            border-radius: 18px;
+            background: linear-gradient(45deg, #ef4444, #eab308, #22c55e, #3b82f6, #ef4444);
+            background-size: 200% 200%;
+            animation: moveRainbowBg 3s ease infinite, pulseRectangle 3s infinite ease-in-out;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(234, 179, 8, 0.2);
+        }
+
+        .app-logo {
+            font-size: 48px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes moveRainbowBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulseRectangle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            color: #f1f5f9;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .player-selector-section {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .selector-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .picker-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .picker-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: #334155;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .picker-btn:hover:not(:disabled) {
+            background: #475569;
+            transform: scale(1.05);
+        }
+
+        .picker-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .count-display {
+            font-size: 22px;
+            font-weight: 800;
+            width: 100px;
+            color: #e2e8f0;
+        }
+
+        .menu-buttons-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 18px 20px;
+            border-radius: 16px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-board {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            border: 1px solid #60a5fa50;
+        }
+        .btn-board:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-dice {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: #ffffff;
+            border: 1px solid #4ade8050;
+        }
+        .btn-dice:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
+        }
+
+        .btn-icon {
+            font-size: 22px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .btn-text-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-main-txt {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .btn-sub-txt {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .footer-credits {
+            margin-top: 35px;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="logo-rectangle-card">
+            <div class="app-logo">
+                <i class="fa-solid fa-dice-d6"></i>
+            </div>
+        </div>
+        <h1 style="font-size: 22px; color: #94a3b8; font-weight: 600;">LOADING CHAMPIONSHIP...</h1>
+        <div class="splash-loader-bar">
+            <div class="splash-loader-progress"></div>
+        </div>
+    </div>
+
+    <div class="welcome-container" id="main-content-hub">
+        <div class="logo-rectangle-card">
+            <div class="app-logo">
+                <i class="fa-solid fa-dice-d6"></i>
+            </div>
+        </div>
+        
+        <h1>LUDO CHAMPIONSHIP</h1>
+        <p class="subtitle">Select your gameplay environment</p>
+
+        <div class="player-selector-section">
+            <div class="selector-title">Total Active Players</div>
+            <div class="picker-wrapper">
+                <button class="picker-btn" id="btn-minus" onclick="adjustPlayerCount(-1)"><i class="fa-solid fa-minus"></i></button>
+                <div class="count-display" id="player-count-view">4 Players</div>
+                <button class="picker-btn" id="btn-plus" onclick="adjustPlayerCount(1)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="menu-buttons-list">
+            <a href="ludo-board.html" class="menu-btn btn-board">
+                <i class="fa-solid fa-gamepad btn-icon"></i>
+                <div class="btn-text-wrapper">
+                    <span class="btn-main-txt">Virtual Ludo Board</span>
+                    <span class="btn-sub-txt">Play with automatic 15x15 board & tokens</span>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="margin-left: auto; font-size: 12px; opacity: 0.6;"></i>
+            </a>
+
+            <a href="pass-dice.html" class="menu-btn btn-dice">
+                <i class="fa-solid fa-dice btn-icon"></i>
+                <div class="btn-text-wrapper">
+                    <span class="btn-main-txt">Fullscreen Pass Dice</span>
+                    <span class="btn-sub-txt">Independent dice for real physical board</span>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="margin-left: auto; font-size: 12px; opacity: 0.6;"></i>
+            </a>
+        </div>
+
+        <div class="footer-credits">LUDO CHAMPIONSHIP • v3.7</div>
+    </div>
+
+    <script>
+        let savedCount = parseInt(localStorage.getItem('ludo_player_count')) || 4;
+
+        function updateUI() {
+            document.getElementById('player-count-view').innerText = `${savedCount} Players`;
+            document.getElementById('btn-minus').disabled = (savedCount <= 2);
+            document.getElementById('btn-plus').disabled = (savedCount >= 4);
+            localStorage.setItem('ludo_player_count', savedCount);
+            localStorage.removeItem('ludo_scores');
+            localStorage.removeItem('ludo_winners_list'); // Reset ranks trigger
+        }
+
+        function adjustPlayerCount(offset) {
+            savedCount += offset;
+            if (savedCount < 2) savedCount = 2;
+            if (savedCount > 4) savedCount = 4;
+            updateUI();
+        }
+
+        // Handle 3 Seconds Loading Splash Redirect
+        // Handle 3 Seconds Loading Splash Redirect
+        // Handle 3 Seconds Loading Splash Redirect
+        window.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            
+            const splash = document.getElementById('splash-screen');
+            const mainHub = document.getElementById('main-content-hub');
+
+            // Agar user board ya dice page par click karega toh hum ek temporary sign save karenge
+            // Taki back aane par pata chal sake aur loading skip ho jaye
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sessionStorage.setItem('coming_from_game', 'true');
+                });
+            });
+
+            // Check karein ki kya user back aaya hai
+            if (sessionStorage.getItem('coming_from_game') === 'true') {
+                // Back aane par instantly load hoga, koi loading screen nahi dikhegi
+                sessionStorage.removeItem('coming_from_game'); // Ise turant hata denge taki refresh par kaam kare
+                splash.style.display = 'none';
+                mainHub.style.opacity = '1';
+                mainHub.style.transform = 'scale(1)';
+            } else {
+                // Agar page refresh kiya gaya ho ya pehli baar khola ho toh normal 3s loading chalegi
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    splash.style.transform = 'scale(1.05)';
+                    
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        mainHub.style.opacity = '1';
+                        mainHub.style.transform = 'scale(1)';
+                    }, 500);
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

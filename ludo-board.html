@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Championship Ludo - Board Game</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 85'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ef4444'/%3E%3Cstop offset='33%25' stop-color='%23eab308'/%3E%3Cstop offset='66%25' stop-color='%2322c55e'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='85' rx='18' fill='url(%23g)'/%3E%3Cpath d='M90 18 L112 32 L112 58 L90 72 L68 58 L68 32 Z' fill='%23ffffff' opacity='0.95'/%3E%3Ccircle cx='90' cy='30' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='80' cy='40' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='100' cy='40' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='80' cy='52' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='100' cy='52' r='2.5' fill='%230b0f19'/%3E%3Ccircle cx='90' cy='62' r='2.5' fill='%230b0f19'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --red-color: #dc2626;
+            --green-color: #16a34a;
+            --yellow-color: #ca8a04;
+            --blue-color: #2563eb;
+            --board-border: #0f172a;
+            --active-theme-color: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow-y: auto;
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            padding: 5px 0;
+        }
+
+        .top-bar {
+            width: 90%;
+            max-width: 380px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            z-index: 10;
+        }
+
+        .back-home-btn, .score-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .turn-status-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1e293b;
+            border: 2px solid var(--active-theme-color);
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--active-theme-color);
+        }
+
+        .board-container {
+            width: 88%;
+            max-width: 380px;
+            aspect-ratio: 1/1;
+            padding: 2px;
+            position: relative;
+            margin: 5px auto;
+        }
+
+        .ludo-board-grid {
+            width: 100%;
+            height: 100%;
+            background: #e2e8f0;
+            border: 5px solid var(--board-border);
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            position: relative;
+        }
+
+        .cell {
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-color: #fff;
+        }
+
+        .cell.track-red { background-color: var(--red-color) !important; }
+        .cell.track-green { background-color: var(--green-color) !important; }
+        .cell.track-yellow { background-color: var(--yellow-color) !important; }
+        .cell.track-blue { background-color: var(--blue-color) !important; }
+
+        .base-yard {
+            grid-column: span 6;
+            grid-row: span 6;
+            padding: 14%;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        .yard-red { background: var(--red-color); }
+        .yard-green { background: var(--green-color); }
+        .yard-blue { background: var(--blue-color); }
+        .yard-yellow { background: var(--yellow-color); }
+
+        .yard-inner-box {
+            background: #ffffff;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .pocket-slot {
+            border: 2px solid #cbd5e1;
+            background-color: #f8fafc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .center-home-triangle {
+            grid-column: 7 / 10;
+            grid-row: 7 / 10;
+            position: relative;
+            background: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: visible;
+        }
+
+        .sub-tri {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .tri-r { background: var(--red-color); clip-path: polygon(0% 0%, 50% 50%, 0% 100%); }
+        .tri-g { background: var(--green-color); clip-path: polygon(0% 0%, 100% 0%, 50% 50%); }
+        .tri-y { background: var(--yellow-color); clip-path: polygon(100% 0%, 100% 100%, 50% 50%); }
+        .tri-b { background: var(--blue-color); clip-path: polygon(0% 100%, 100% 100%, 50% 50%); }
+
+        .rank-overlay-badge {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 900;
+            font-size: 20px;
+            text-transform: uppercase;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            z-index: 20;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .rank-overlay-badge i {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .rank-1st { color: #eab308; border: 4px solid #eab308; }
+        .rank-2nd { color: #cbd5e1; border: 4px solid #cbd5e1; }
+        .rank-3rd { color: #b45309; border: 4px solid #b45309; }
+        .rank-fail { color: #94a3b8; opacity: 0.9; border: 4px dashed #475569; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .safe-star-icon {
+            color: #475569;
+            font-size: 11px;
+            z-index: 1;
+        }
+
+        .ludo-piece {
+            width: 76%;
+            height: 76%;
+            max-width: 22px;
+            max-height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #ffffff;
+            z-index: 5;
+            position: absolute;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ludo-piece::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+        }
+
+        /* Active piece layers automatic elevation boost */
+        .movable-glow {
+            z-index: 99 !important; /* Forces it above all standard stacked static nodes */
+            transform: scale(1.18) !important;
+        }
+
+        .movable-glow::before {
+            content: '';
+            position: absolute;
+            width: 140%;
+            height: 140%;
+            border-radius: 50%;
+            border: 1.5px dashed #ffffff;
+            animation: radarRotate 2s linear infinite;
+            box-shadow: 0 0 6px currentColor;
+            box-sizing: border-box;
+        }
+        @keyframes radarRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dashboard-panel {
+            width: 90%;
+            max-width: 380px;
+            background: #1e293b;
+            border: 2px solid var(--active-theme-color);
+            padding: 12px 18px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .die-info-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .die-info-label .label-top { text-transform: uppercase; font-size: 10px; font-weight: 800; }
+        .die-info-label .label-msg { font-size: 13px; font-weight: 500; color: #cbd5e1; }
+
+        .premium-tactile-die {
+            width: 52px;
+            height: 52px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 6px;
+            gap: 4px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            cursor: pointer;
+            border: 2px solid var(--active-theme-color);
+        }
+
+        .die-dot {
+            background-color: var(--active-theme-color) !important;
+            border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            margin: auto;
+            opacity: 0;
+        }
+
+        .die-roll-anim { animation: rollCube 0.4s ease-in-out; }
+        @keyframes rollCube {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .score-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .score-card-box {
+            width: 85%;
+            max-width: 340px;
+            background: #1e293b;
+            border: 2px solid #475569;
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .score-card-box h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            color: #f1f5f9;
+        }
+        .score-row-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+        }
+        .close-score-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            border-radius: 10px;
+            border: none;
+            background: #334155;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="index.html" class="back-home-btn"><i class="fa-solid fa-house"></i></a>
+        <div class="turn-status-banner" id="master-turn-banner">
+            <span class="status-dot" id="active-banner-dot"></span>
+            <span id="active-banner-text">Red's Turn</span>
+        </div>
+        <button class="score-toggle-btn" onclick="openScoreboardModal()"><i class="fa-solid fa-trophy"></i></button> 
+    </div>
+
+    <div class="board-container">
+        <div class="ludo-board-grid" id="ludo-board"></div>
+    </div>
+
+    <div class="dashboard-panel" id="main-dashboard-panel">
+        <div class="die-info-label">
+            <span class="label-top" id="dash-player-title" style="color: var(--red-color);">Red Action</span>
+            <span class="label-msg" id="dash-action-status">Roll die to play</span>
+        </div>
+        
+        <div class="premium-tactile-die" id="board-die" onclick="triggerGameRollSequence()">
+            <div class="die-dot" id="bd1"></div><div class="die-dot" id="bd2"></div><div class="die-dot" id="bd3"></div>
+            <div class="die-dot" id="bd4"></div><div class="die-dot" id="bd5"></div><div class="die-dot" id="bd6"></div>
+            <div class="die-dot" id="bd7"></div><div class="die-dot" id="bd8"></div><div class="die-dot" id="bd9"></div>
+        </div>
+    </div>
+
+    <div class="score-modal-overlay" id="score-modal">
+        <div class="score-card-box">
+            <h3><i class="fa-solid fa-star" style="color: #eab308;"></i> Live Scoreboard</h3>
+            <div id="scores-rows-list"></div>
+            <button class="close-score-btn" onclick="closeScoreboardModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const totalPlayers = parseInt(localStorage.getItem('ludo_player_count')) || 4; 
+        let activeAllowedTeams = ['red', 'green', 'yellow', 'blue'];
+
+        if (totalPlayers === 2) { activeAllowedTeams = ['red', 'yellow']; } 
+        else if (totalPlayers === 3) { activeAllowedTeams = ['red', 'green', 'yellow']; }
+
+        let explicitWinnersList = JSON.parse(localStorage.getItem('ludo_winners_list')) || [];
+        let gameScores = JSON.parse(localStorage.getItem('ludo_scores')) || { red: 0, green: 0, yellow: 0, blue: 0 };
+
+        // 1. GAME OVER STATE KO TRACK KARNE KE LIYE FLAG
+        let isGameOverFlag = false;
+
+        function appendPoints(team, amount) {
+            if(gameScores[team] !== undefined) {
+                gameScores[team] += amount;
+                localStorage.setItem('ludo_scores', JSON.stringify(gameScores));
+            }
+        }
+
+        function openScoreboardModal() {
+            const rowsContainer = document.getElementById('scores-rows-list');
+            rowsContainer.innerHTML = "";
+            activeAllowedTeams.forEach(team => {
+                const row = document.createElement('div');
+                row.className = 'score-row-item';
+                row.style.background = metaTeamsData[team].colorHex + "20";
+                row.style.color = metaTeamsData[team].colorHex;
+                row.style.border = `1px solid ${metaTeamsData[team].colorHex}50`;
+                
+                let rankSuffix = "";
+                const rIdx = explicitWinnersList.indexOf(team);
+                if(rIdx !== -1) { rankSuffix = ` [${rIdx + 1}st Place]`; }
+                else if(explicitWinnersList.length === activeAllowedTeams.length - 1 && !explicitWinnersList.includes(team)) { rankSuffix = " [FAIL]"; }
+
+                row.innerHTML = `<span>${team}${rankSuffix}</span> <span>${gameScores[team]} Pts</span>`;
+                rowsContainer.appendChild(row);
+            });
+            document.getElementById('score-modal').style.display = 'flex';
+        }
+
+        function closeScoreboardModal() { document.getElementById('score-modal').style.display = 'none'; }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSoundTone(frequency, duration = 0.15) {
+            try {
+                let osc = audioCtx.createOscillator();
+                let gainNode = audioCtx.createGain();
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        const DOT_COMBOS = { 1:[5], 2:[3,7], 3:[3,5,7], 4:[1,3,7,9], 5:[1,3,5,7,9], 6:[1,3,4,6,7,9] };
+        function renderDieFaceGraphics(number) {
+            const container = document.getElementById('board-die');
+            container.querySelectorAll('.die-dot').forEach(dot => dot.style.opacity = '0');
+            DOT_COMBOS[number].forEach(pos => {
+                document.getElementById(`bd${pos}`).style.opacity = '1';
+            });
+        }
+
+        let isBoardRollRunning = false;
+        function triggerGameRollSequence() {
+            if (isGameOverFlag || !isWaitingForDiceRoll || isBoardRollRunning || isTokenAnimating) return;
+            
+            if (explicitWinnersList.includes(activeAllowedTeams[activeTurnIndex])) {
+                triggerTurnShiftCycle();
+                return;
+            }
+
+            isBoardRollRunning = true; isWaitingForDiceRoll = false;
+            const target = document.getElementById('board-die');
+            target.classList.add('die-roll-anim');
+            playSoundTone(220, 0.3);
+
+            let cycles = 0;
+            const rollTimer = setInterval(() => {
+                renderDieFaceGraphics(Math.floor(Math.random() * 6) + 1);
+                cycles++;
+                if (cycles > 8) {
+                    clearInterval(rollTimer);
+                    target.classList.remove('die-roll-anim');
+                    let landingFace = Math.floor(Math.random() * 6) + 1;
+                    renderDieFaceGraphics(landingFace);
+                    isBoardRollRunning = false;
+                    
+                    latestDiceValueResult = landingFace;
+                    const currentTurnColor = activeAllowedTeams[activeTurnIndex];
+                    
+                    if(landingFace === 6) { appendPoints(currentTurnColor, 5); }
+
+                    const validOptions = globalTokenRegistry.filter(t => t.team === currentTurnColor && verifyMovePossibility(t, latestDiceValueResult));
+                    
+                    if (validOptions.length === 0) {
+                        if (landingFace === 6) {
+                            document.getElementById('dash-action-status').innerText = `Rolled 6 (+5 Pts). No moves!`;
+                            isWaitingForDiceRoll = true; 
+                        } else {
+                            document.getElementById('dash-action-status').innerText = `Rolled ${landingFace}. No moves!`;
+                            setTimeout(() => { triggerTurnShiftCycle(); }, 1400);
+                        }
+                    } else if (validOptions.length === 1) {
+                        document.getElementById('dash-action-status').innerText = `Auto Moving...`;
+                        drawTokensLayer();
+                        setTimeout(() => {
+                            triggerPieceStepAnimation(validOptions[0]);
+                        }, 600);
+                    } else {
+                        document.getElementById('dash-action-status').innerText = `Rolled ${landingFace}! Tap piece.`;
+                        drawTokensLayer();
+                    }
+                }
+            }, 50);
+        }
+
+        const boardGridElement = document.getElementById('ludo-board');
+        function constructBoardLayoutStructure() {
+    const setupBases = [
+        { r: 1, c: 1, team: 'red', styleClass: 'yard-red' }, { r: 1, c: 10, team: 'green', styleClass: 'yard-green' },
+        { r: 10, c: 1, team: 'blue', styleClass: 'yard-blue' }, { r: 10, c: 10, team: 'yellow', styleClass: 'yard-yellow' }
+    ];
+    
+    // 1. Safe blocks ke coordinates ka array
+    const safeSpots = [
+        [6,12], [8,2], [2,6], [12,8],
+        [6,1], [1,8], [8,13], [13,6]
+    ];
+
+    for (let r = 0; r < 15; r++) {
+        for (let c = 0; c < 15; c++) {
+            const matchedBase = setupBases.find(b => r >= b.r - 1 && r < b.r + 5 && c >= b.c - 1 && c < b.c + 5);
+            if (matchedBase) {
+                if (r === matchedBase.r - 1 && c === matchedBase.c - 1) {
+                    const yardNode = document.createElement('div');
+                    yardNode.className = `base-yard ${matchedBase.styleClass}`;
+                    yardNode.id = `yard-container-${matchedBase.team}`;
+                    yardNode.style.gridRow = `${matchedBase.r} / span 6`; yardNode.style.gridColumn = `${matchedBase.c} / span 6`;
+                    
+                    if (!activeAllowedTeams.includes(matchedBase.team)) { yardNode.style.opacity = '0.15'; }
+
+                    const boxInner = document.createElement('div'); boxInner.className = 'yard-inner-box';
+                    for (let p = 1; p <= 4; p++) {
+                        const slot = document.createElement('div'); slot.className = 'pocket-slot'; slot.id = `pocket-${matchedBase.team}-${p}`;
+                        boxInner.appendChild(slot);
+                    }
+                    yardNode.appendChild(boxInner); boardGridElement.appendChild(yardNode);
+                }
+                continue;
+            }
+            if (r >= 6 && r <= 8 && c >= 6 && c <= 8) {
+                if (r === 6 && c === 6) {
+                    const triWrapper = document.createElement('div'); triWrapper.className = 'center-home-triangle';
+                    triWrapper.id = "cell-7-7";
+                    triWrapper.innerHTML = `<div class="sub-tri tri-r"></div><div class="sub-tri tri-g"></div><div class="sub-tri tri-y"></div><div class="sub-tri tri-b"></div>`;
+                    boardGridElement.appendChild(triWrapper);
+                }
+                continue;
+            }
+            
+            // Yahan track ki cells banti hain
+            const cell = document.createElement('div'); cell.className = 'cell'; cell.id = `cell-${r}-${c}`;
+            if (r === 7 && c >= 1 && c <= 5) cell.classList.add('track-red'); if (r === 6 && c === 1) cell.classList.add('track-red');
+            if (c === 7 && r >= 1 && r <= 5) cell.classList.add('track-green'); if (r === 1 && c === 8) cell.classList.add('track-green');
+            if (r === 7 && c >= 9 && c <= 13) cell.classList.add('track-yellow'); if (r === 8 && c === 13) cell.classList.add('track-yellow');
+            if (c === 7 && r >= 9 && r <= 13) cell.classList.add('track-blue'); if (r === 13 && c === 6) cell.classList.add('track-blue');
+            
+            // 2. YE WALA HISSA STAR ICON DISPLAY KARTA HAI
+            if (safeSpots.some(s => s[0] === r && s[1] === c)) {
+                cell.innerHTML = '<i class="fa-solid fa-star safe-star-icon"></i>';
+            }
+            
+            boardGridElement.appendChild(cell);
+        }
+    }
+}
+        const sharedTrackLayout = [[6,0],[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0]];
+        const metaTeamsData = {
+            'red': { baseStartIdx: 1, safeEntranceTrack: [[7,1],[7,2],[7,3],[7,4],[7,5]], colorHex: '#dc2626' },
+            'green': { baseStartIdx: 14, safeEntranceTrack: [[1,7],[2,7],[3,7],[4,7],[5,7]], colorHex: '#16a34a' },
+            'yellow': { baseStartIdx: 27, safeEntranceTrack: [[7,13],[7,12],[7,11],[7,10],[7,9]], colorHex: '#ca8a04' },
+            'blue': { baseStartIdx: 40, safeEntranceTrack: [[13,7],[12,7],[11,7],[10,7],[9,7]], colorHex: '#2563eb' }
+        };
+
+        let activeTurnIndex = 0; let latestDiceValueResult = 0;
+        let isWaitingForDiceRoll = true; let globalTokenRegistry = []; let isTokenAnimating = false;
+
+        function initTokenDatabase() {
+            globalTokenRegistry = [];
+            ['red', 'green', 'yellow', 'blue'].forEach(color => {
+                for (let i = 1; i <= 4; i++) { globalTokenRegistry.push({ team: color, id: `${color}-${i}`, mode: 'home', stepsCompleted: -1 }); }
+            });
+            setTimeout(drawTokensLayer, 150);
+        }
+
+        function drawTokensLayer() {
+            document.querySelectorAll('.ludo-piece').forEach(el => el.remove());
+            const cellOccupancyMap = {};
+            let finishedDistributionCounters = { red: 0, green: 0, yellow: 0, blue: 0 };
+
+            globalTokenRegistry.forEach(token => {
+                if(!activeAllowedTeams.includes(token.team)) return;
+                
+                let targetContainerId = "";
+                let customOffsets = null;
+
+                if (token.mode === 'home') { targetContainerId = `pocket-${token.team}-${token.id.split('-')[1]}`; } 
+                else if (token.mode === 'track') {
+                    const coords = sharedTrackLayout[(metaTeamsData[token.team].baseStartIdx + token.stepsCompleted) % 52];
+                    targetContainerId = `cell-${coords[0]}-${coords[1]}`;
+                } else if (token.mode === 'safezone') {
+                    const coords = metaTeamsData[token.team].safeEntranceTrack[token.stepsCompleted];
+                    targetContainerId = `cell-${coords[0]}-${coords[1]}`;
+                } else if (token.mode === 'finished') { 
+                    targetContainerId = "cell-7-7"; 
+                    
+                    let idx = finishedDistributionCounters[token.team];
+                    finishedDistributionCounters[token.team]++;
+                    
+                    if (token.team === 'red') {
+                        customOffsets = { x: -14 + (idx * 5), y: -10 + (idx * 5) };
+                    } else if (token.team === 'yellow') {
+                        customOffsets = { x: 14 - (idx * 5), y: 10 - (idx * 5) };
+                    } else if (token.team === 'green') {
+                        customOffsets = { x: -8 + (idx * 6), y: -16 };
+                    } else if (token.team === 'blue') {
+                        customOffsets = { x: -8 + (idx * 6), y: 16 };
+                    }
+                }
+
+                if (targetContainerId) {
+                    if (!cellOccupancyMap[targetContainerId]) cellOccupancyMap[targetContainerId] = [];
+                    cellOccupancyMap[targetContainerId].push({ token: token, customOffsets: customOffsets });
+                }
+            });
+
+            Object.keys(cellOccupancyMap).forEach(containerId => {
+                const containerElement = document.getElementById(containerId);
+                if (!containerElement) return;
+
+                const nodesInThisCell = cellOccupancyMap[containerId];
+                nodesInThisCell.forEach((item, index) => {
+                    const token = item.token;
+                    const node = document.createElement('div');
+                    node.className = 'ludo-piece';
+                    node.id = token.id;
+                    node.style.backgroundColor = metaTeamsData[token.team].colorHex;
+
+                    if (item.customOffsets) {
+                        node.style.transform = `translate(${item.customOffsets.x}px, ${item.customOffsets.y}px)`;
+                    } else if (nodesInThisCell.length > 1) {
+                        const shiftOffset = (index - (nodesInThisCell.length - 1) / 2) * 5;
+                        node.style.transform = `translate(${shiftOffset}px, ${-shiftOffset}px)`;
+                    } else { 
+                        node.style.transform = 'none'; 
+                    }
+
+                    // Checking if current node is eligible to move in this precise frame
+                    const isMovableToken = !isWaitingForDiceRoll && !isTokenAnimating && 
+                                           token.team === activeAllowedTeams[activeTurnIndex] && 
+                                           verifyMovePossibility(token, latestDiceValueResult);
+
+                    if (isMovableToken) {
+                        node.classList.add('movable-glow');
+                        node.onclick = (e) => { e.stopPropagation(); triggerPieceStepAnimation(token); };
+                    }
+                    containerElement.appendChild(node);
+                });
+            });
+
+            refreshWinnersRankOverlayUI();
+        }
+
+        function triggerPieceStepAnimation(token) {
+            if (isTokenAnimating) return;
+            isTokenAnimating = true;
+            document.querySelectorAll('.ludo-piece').forEach(el => el.classList.remove('movable-glow'));
+            let steps = latestDiceValueResult, current = 0;
+
+            if (token.mode === 'home' && steps === 6) {
+                token.mode = 'track'; token.stepsCompleted = 0;
+                finalizeStepMove(token, 6, false); return;
+            }
+
+            const timer = setInterval(() => {
+                current++;
+                let reachedHomeThisStep = false;
+                if (token.mode === 'track') {
+                    if (token.stepsCompleted + 1 > 50) { token.mode = 'safezone'; token.stepsCompleted = 0; }
+                    else { token.stepsCompleted += 1; }
+                } else if (token.mode === 'safezone') {
+                    if (token.stepsCompleted + 1 === 5) { 
+                        token.mode = 'finished'; 
+                        reachedHomeThisStep = true;
+                    }
+                    else { token.stepsCompleted += 1; }
+                }
+                playSoundTone(480 + (current * 30), 0.08);
+                drawTokensLayer();
+                
+                if (current >= steps || token.mode === 'finished') { 
+                    clearInterval(timer); 
+                    if (token.mode === 'finished') { appendPoints(token.team, 20); }
+                    finalizeStepMove(token, steps, reachedHomeThisStep); 
+                }
+            }, 180);
+        }
+
+        function finalizeStepMove(token, roll, reachedHome) {
+            let gotExtraChanceByKill = false;
+
+            if (token.mode === 'track') {
+                const idx = (metaTeamsData[token.team].baseStartIdx + token.stepsCompleted) % 52;
+                const coords = sharedTrackLayout[idx];
+                const safe = [[6,12], [8,2], [2,6], [12,8], [6,1], [1,8], [8,13], [13,6]];
+                if (!safe.some(s => s[0] === coords[0] && s[1] === coords[1])) {
+                    globalTokenRegistry.forEach(t => {
+                        if (t.team !== token.team && t.mode === 'track' && idx === ((metaTeamsData[t.team].baseStartIdx + t.stepsCompleted) % 52)) {
+                            t.mode = 'home'; t.stepsCompleted = -1;
+                            appendPoints(token.team, 15);
+                            playSoundTone(880, 0.4);
+                            gotExtraChanceByKill = true; 
+                        }
+                    });
+                }
+            }
+
+            evaluateTeamVictoryState(token.team);
+
+            isTokenAnimating = false; isWaitingForDiceRoll = true;
+            
+            if (reachedHome) {
+                document.getElementById('dash-action-status').innerText = `Goti Home! Extra Turn!`;
+                drawTokensLayer();
+            } else if (gotExtraChanceByKill) {
+                document.getElementById('dash-action-status').innerText = `Goti Cut Kardi! Extra Turn!`;
+                drawTokensLayer();
+            } else if (roll === 6) {
+                document.getElementById('dash-action-status').innerText = `Rolled 6! Extra Turn!`; 
+                drawTokensLayer(); 
+            } else { 
+                triggerTurnShiftCycle(); 
+            }
+        }
+
+        function evaluateTeamVictoryState(team) {
+            if (explicitWinnersList.includes(team)) return;
+            
+            // Check ki is team ki saari pieces finish ho gayi hain ya nahi
+            const teamPieces = globalTokenRegistry.filter(t => t.team === team);
+            const finishedCount = teamPieces.filter(t => t.mode === 'finished').length;
+            
+            if (finishedCount === 4) {
+                explicitWinnersList.push(team);
+                localStorage.setItem('ludo_winners_list', JSON.stringify(explicitWinnersList));
+                playSoundTone(600, 0.6); // Winning Sound
+            }
+
+            // --- GAME OVER LOGIC STARTS HERE ---
+            // Total players ke hisab se kitne winners ho sakte hain (Jaise 4 players me max 3 winners)
+            let maxPossibleWinners = activeAllowedTeams.length - 1; 
+            
+            if (explicitWinnersList.length >= maxPossibleWinners) {
+                isGameOverFlag = true;
+                isWaitingForDiceRoll = false;
+                
+                // 1. Dice par disabled styling class lagana taaki wo gray/block ho jaye
+                const diceElement = document.getElementById('board-die');
+                if(diceElement) {
+                    diceElement.style.opacity = '0.5';
+                    diceElement.style.cursor = 'not-allowed';
+                    diceElement.style.pointerEvents = 'none'; // Click block karne ke liye
+                }
+                
+                // 2. Control panel par status texts badalna
+                document.getElementById('dash-action-status').innerText = "Game Over!";
+                document.getElementById('active-banner-text').innerText = "Match Ended";
+                
+                // 3. Game end hote hi automatic final results ka scoreboard popup open karna
+                setTimeout(() => {
+                    openScoreboardModal();
+                }, 1000);
+            }
+        }
+
+        function refreshWinnersRankOverlayUI() {
+            document.querySelectorAll('.rank-overlay-badge').forEach(el => el.remove());
+
+            activeAllowedTeams.forEach(team => {
+                const targetYard = document.getElementById(`yard-container-${team}`);
+                if (!targetYard) return;
+
+                const winnerPositionIndex = explicitWinnersList.indexOf(team);
+                if (winnerPositionIndex !== -1) {
+                    const badge = document.createElement('div');
+                    let placementTxt = ["1st Win", "2nd Win", "3rd Win"][winnerPositionIndex] || "Winner";
+                    let rankClass = ["rank-1st", "rank-2nd", "rank-3rd"][winnerPositionIndex] || "rank-3rd";
+                    let icon = ["fa-crown", "fa-medal", "fa-award"][winnerPositionIndex] || "fa-trophy";
+
+                    badge.className = `rank-overlay-badge ${rankClass}`;
+                    badge.innerHTML = `<i class="fa-solid ${icon}"></i><span>${placementTxt}</span>`;
+                    targetYard.appendChild(badge);
+                } 
+                else if (explicitWinnersList.length >= activeAllowedTeams.length - 1 && explicitWinnersList.length > 0) {
+                    const badge = document.createElement('div');
+                    badge.className = `rank-overlay-badge rank-fail`;
+                    badge.innerHTML = `<i class="fa-solid fa-heart-crack"></i><span>FAILED</span>`;
+                    targetYard.appendChild(badge);
+                }
+            });
+        }
+
+        function verifyMovePossibility(t, r) {
+            if (t.mode === 'finished') return false; if (t.mode === 'home') return r === 6;
+            if (t.mode === 'track') return true; if (t.mode === 'safezone') return (t.stepsCompleted + r) <= 5;
+            return false;
+        }
+
+        function triggerTurnShiftCycle() { 
+            activeTurnIndex = (activeTurnIndex + 1) % activeAllowedTeams.length; 
+            isWaitingForDiceRoll = true; 
+            
+            let securityInfiniteLoopGuard = 0;
+            while(explicitWinnersList.includes(activeAllowedTeams[activeTurnIndex]) && securityInfiniteLoopGuard < 10) {
+                activeTurnIndex = (activeTurnIndex + 1) % activeAllowedTeams.length;
+                securityInfiniteLoopGuard++;
+            }
+            
+            syncGlobalThemeColors(); 
+        }
+
+        function syncGlobalThemeColors() {
+            const team = activeAllowedTeams[activeTurnIndex], hex = metaTeamsData[team].colorHex;
+            document.documentElement.style.setProperty('--active-theme-color', hex);
+            document.getElementById('master-turn-banner').style.borderColor = hex;
+            document.getElementById('active-banner-dot').style.backgroundColor = hex;
+            document.getElementById('active-banner-text').innerText = `${team.toUpperCase()}'s Turn`;
+            document.getElementById('main-dashboard-panel').style.borderColor = hex;
+            document.getElementById('dash-player-title').innerText = `${team.toUpperCase()} Action`;
+            document.getElementById('dash-player-title').style.color = hex;
+            if(isWaitingForDiceRoll) document.getElementById('dash-action-status').innerText = `Roll die to play`;
+            drawTokensLayer();
+        }
+
+        // --- INITIALIZE GAME ON PAGE LOAD ---
+            constructBoardLayoutStructure(); 
+            initTokenDatabase(); 
+
+            if (isGameOverFlag) {
+                // Agar game pehle hi over hai to refresh karne par sab kuch locked rahega
+                isWaitingForDiceRoll = false;
+                const diceElement = document.getElementById('board-die');
+                if(diceElement) {
+                    diceElement.style.opacity = '0.5';
+                    diceElement.style.cursor = 'not-allowed';
+                    diceElement.style.pointerEvents = 'none';
+                }
+                document.getElementById('dash-action-status').innerText = "Game Over!";
+                document.getElementById('active-banner-text').innerText = "Match Ended";
+                
+                // Tokens layer draw karein taaki jeete hue badges dikhein
+                setTimeout(drawTokensLayer, 200);
+            } else {
+                // Agar game abhi chal raha hai tabhi normal turn start hoga
+                syncGlobalThemeColors(); 
+                renderDieFaceGraphics(6);
+            }
+     </script>
+</body>
+</html>
